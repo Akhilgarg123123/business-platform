@@ -1,7 +1,7 @@
 package com.akhilgarg.businessplatform.repository;
 
 import com.akhilgarg.businessplatform.entity.Customer;
-import org.hibernate.internal.util.Optional;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
