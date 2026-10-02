@@ -9,6 +9,8 @@ import com.akhilgarg.businessplatform.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
+import com.akhilgarg.businessplatform.repository.TransactionRepository;
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -16,10 +18,12 @@ public class CustomerService {
 
     private final CustomerRepository customerRepository;
     private final UserRepository userRepository;
+    private final TransactionRepository transactionRepository;
 
-    public CustomerService(CustomerRepository customerRepository, UserRepository userRepository) {
+    public CustomerService(CustomerRepository customerRepository, UserRepository userRepository,TransactionRepository transactionRepository) {
         this.customerRepository = customerRepository;
         this.userRepository = userRepository;
+        this.transactionRepository=transactionRepository;
     }
 
     @Transactional(readOnly = true)
@@ -58,6 +62,18 @@ public class CustomerService {
         customer.setPhoneNumber(request.getPhoneNumber());
         customer.setEmail(request.getEmail());
         return toResponse(customerRepository.save(customer));
+    }
+
+    @Transactional
+    public void recalculateRegularStatus(Long customerId) {
+        LocalDate sixtyDaysAgo = LocalDate.now().minusDays(60);
+        long recentCount = transactionRepository.countByCustomerIdAndDateAfter(customerId, sixtyDaysAgo);
+
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
+
+        customer.setIsRegular(recentCount >= 3);
+        customerRepository.save(customer);
     }
 
     @Transactional

@@ -12,6 +12,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     List<Transaction> findByCustomerId(Long customerId);
 
     long countByCustomerIdAndDateAfter(Long customerId, LocalDate date);
+    List<Transaction> findByCustomerIdOrderByDateDesc(Long customerId);
 
     @Query("SELECT COALESCE(SUM(t.amount), 0) FROM Transaction t WHERE t.customer.user.id = :userId")
     BigDecimal sumAmountByUserId(Long userId);
