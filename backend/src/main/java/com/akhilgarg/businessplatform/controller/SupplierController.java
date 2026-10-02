@@ -7,7 +7,9 @@ import com.akhilgarg.businessplatform.service.SupplierService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import com.akhilgarg.businessplatform.dto.DeliveryRequest;
+import com.akhilgarg.businessplatform.dto.ExpenseResponse;
+import com.akhilgarg.businessplatform.service.ExpenseService;
 import java.util.List;
 
 @RestController
@@ -15,12 +17,15 @@ import java.util.List;
 public class SupplierController {
 
     private final SupplierService supplierService;
+    private final ExpenseService expenseService;
     private final CurrentUser currentUser;
 
-    public SupplierController(SupplierService supplierService, CurrentUser currentUser) {
+    public SupplierController(SupplierService supplierService, ExpenseService expenseService, CurrentUser currentUser) {
         this.supplierService = supplierService;
+        this.expenseService = expenseService;
         this.currentUser = currentUser;
     }
+
 
     @GetMapping
     public ResponseEntity<List<SupplierResponse>> getAll() {
@@ -40,6 +45,11 @@ public class SupplierController {
     @PostMapping
     public ResponseEntity<SupplierResponse> create(@Valid @RequestBody SupplierRequest request) {
         return ResponseEntity.ok(supplierService.create(currentUser.getId(), request));
+    }
+
+    @PostMapping("/{id}/deliveries")
+    public ResponseEntity<ExpenseResponse> recordDelivery(@PathVariable Long id, @Valid @RequestBody DeliveryRequest request) {
+        return ResponseEntity.ok(expenseService.recordDelivery(id, currentUser.getId(), request));
     }
 
     @PutMapping("/{id}")
