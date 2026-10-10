@@ -396,3 +396,12 @@ This section explains each `@ManyToOne`/`@OneToMany` in terms of *why that speci
 ### The overall pattern, stated once
 
 Every `@ManyToOne` in this schema answers **"who does this row belong to, or what does it apply to"** — and almost all of them trace back, directly or through one hop, to a `User`, which is what makes the entire "user-scoped data isolation" security model enforceable with a single consistent pattern: filter by `user_id`, whether directly (`Customer.user_id`) or by joining through a parent (`Transaction → Customer → user_id`). The two `@OneToMany` relationships (`Transaction.items`, `Expense.items`) exist specifically to model **one real-world event containing multiple products** — they're not generic "convenience" collections, they're the direct structural fix for the multi-product problem you identified twice (once for sales, once for supplier deliveries), and they're what makes the "compute totals + update stock automatically" behavior possible at all.
+
+## Running locally
+
+Set these environment variables before starting the backend:
+
+- `DB_PASSWORD`: your MySQL root password
+- `JWT_SECRET`: a random string of at least 32 characters
+
+Create the database first: `CREATE DATABASE business_platform;`
