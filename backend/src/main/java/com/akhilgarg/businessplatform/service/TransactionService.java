@@ -8,7 +8,7 @@ import com.akhilgarg.businessplatform.repository.ProductRepository;
 import com.akhilgarg.businessplatform.repository.TransactionRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import com.akhilgarg.businessplatform.exception.BadRequestException;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -62,18 +62,25 @@ public class TransactionService {
             item.setQuantity(itemRequest.getQuantity());
 
             if (itemRequest.getProductId() != null) {
-                Product product = productRepository.findById(itemRequest.getProductId())
+                Product product = productRepository.findByIdAndUserId(itemRequest.getProductId(), userId)
                         .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
                 item.setProduct(product);
 
                 BigDecimal price = itemRequest.getPrice() != null
                         ? itemRequest.getPrice()
                         : product.getDefaultPrice();
+
+                if (price == null) {
+                    throw new BadRequestException(
+                            "No price for '" + product.getName() + "'. Set a default price on the product or enter one for this item.");
+                }
                 item.setPrice(price);
 
                 productService.decreaseStock(product.getId(), itemRequest.getQuantity());
             } else {
-                // No product linked - price must be supplied directly
+                if (itemRequest.getPrice() == null) {
+                    throw new BadRequestException("Price is required for items without a product.");
+                }
                 item.setPrice(itemRequest.getPrice());
             }
 

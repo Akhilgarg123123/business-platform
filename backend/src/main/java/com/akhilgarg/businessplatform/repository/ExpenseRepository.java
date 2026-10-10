@@ -17,4 +17,10 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
 
     @Query("SELECT e.category, COALESCE(SUM(e.amount), 0) FROM Expense e WHERE e.user.id = :userId GROUP BY e.category")
     List<Object[]> sumAmountGroupedByCategory(Long userId);
+
+    @Query("SELECT FUNCTION('DATE_FORMAT', e.date, '%Y-%m') as month, COALESCE(SUM(e.amount), 0) " +
+            "FROM Expense e WHERE e.user.id = :userId " +
+            "GROUP BY FUNCTION('DATE_FORMAT', e.date, '%Y-%m') " +
+            "ORDER BY FUNCTION('DATE_FORMAT', e.date, '%Y-%m')")
+    List<Object[]> monthlyExpensesByUserId(Long userId);
 }

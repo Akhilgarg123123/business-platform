@@ -75,7 +75,7 @@ public class ExpenseService {
             item.setPrice(itemRequest.getPrice());
 
             if (itemRequest.getProductId() != null) {
-                Product product = productRepository.findById(itemRequest.getProductId())
+                Product product = productRepository.findByIdAndUserId(itemRequest.getProductId(), userId)
                         .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
                 item.setProduct(product);
 
