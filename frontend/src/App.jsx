@@ -1,31 +1,43 @@
-import { Routes, Route, Navigate } from "react-router-dom";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import { logout } from "./api/auth";
+import { Navigate, Route, Routes } from 'react-router-dom';
+import Layout from './components/Layout';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import Customers from './pages/Customers';
+import Suppliers from './pages/Suppliers';
+import Products from './pages/Products';
+import Stock from './pages/Stock';
+import Deliveries from './pages/Deliveries';
+import Billing from './pages/Billing';
+import Preferences from './pages/Preferences';
 
-// Like SecurityConfig's anyRequest().authenticated()
-function ProtectedRoute({ children }) {
-  return localStorage.getItem("token") ? children : <Navigate to="/login" />;
-}
-
-function Home() {
-  return (
-      <div style={{ fontFamily: "sans-serif", padding: 24 }}>
-        <h2>Welcome, {localStorage.getItem("businessName")}</h2>
-        <p>You are logged in. Customers page coming next.</p>
-        <button onClick={() => { logout(); window.location.href = "/login"; }}>
-          Logout
-        </button>
-      </div>
-  );
+// Only lets you in if there is a saved token (the backend still checks it on every request).
+function RequireAuth({ children }) {
+  return localStorage.getItem('token') ? children : <Navigate to="/login" replace />;
 }
 
 export default function App() {
   return (
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
-      </Routes>
+    <Routes>
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+
+      <Route
+        element={
+          <RequireAuth>
+            <Layout />
+          </RequireAuth>
+        }
+      >
+        <Route path="/customers" element={<Customers />} />
+        <Route path="/suppliers" element={<Suppliers />} />
+        <Route path="/products" element={<Products />} />
+        <Route path="/stock" element={<Stock />} />
+        <Route path="/deliveries" element={<Deliveries />} />
+        <Route path="/billing" element={<Billing />} />
+        <Route path="/preferences" element={<Preferences />} />
+      </Route>
+
+      <Route path="*" element={<Navigate to="/customers" replace />} />
+    </Routes>
   );
 }
